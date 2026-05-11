@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gym desk — staff</title>
+  <style>
+    :root {
+      --green: #39b54a;
+      --green-dark: #2a8f38;
+      --green-soft: #e8f7ea;
+      --ink: #111827;
+      --muted: #6b7280;
+      --line: #e3e5e8;
+      --bg: #f4f5f7;
+      --card: #ffffff;
+      --radius: 10px;
+      --input-shadow: 0 1px 2px rgba(17, 24, 39, 0.05);
+      --input-shadow-focus: 0 1px 3px rgba(17, 24, 39, 0.07), 0 0 0 3px rgba(57, 181, 74, 0.14);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    .topbar {
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .topbar .left {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .crest {
+      width: 42px; height: 42px; border-radius: 8px;
+      background: var(--green-soft);
+      border: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: var(--green-dark); font-size: 13px;
+    }
+    .topbar h1 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .topbar .sub {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .topbar .actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .topbar a.link {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--green-dark);
+      text-decoration: none;
+    }
+    .topbar a.link:hover { text-decoration: underline; }
+    button.ghost {
+      border: 1px solid var(--line);
+      background: var(--card);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--ink);
+    }
+    button.ghost:hover { background: #f9fafb; }
+    main { max-width: 1120px; margin: 0 auto; padding: 20px 18px 40px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    @media (min-width: 900px) {
+      .grid { grid-template-columns: 1fr 320px; align-items: start; }
+    }
+    .panel {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .panel .hd {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #fafbfc;
+    }
+    .panel .hd h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .panel .hd .star { color: var(--green); font-size: 14px; margin-left: 6px; }
+    .panel .bd { padding: 16px 18px; }
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="date"],
+    input[type="number"] {
+      width: 100%;
+      max-width: 360px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 15px;
+      background: #fafafa;
+      box-shadow: var(--input-shadow);
+      transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--green);
+      background: var(--card);
+      box-shadow: var(--input-shadow-focus);
+    }
+    button.primary {
+      border: 1px solid #2a7a36;
+      background: var(--green);
+      color: #fff;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button.primary:hover { background: var(--green-dark); border-color: var(--green-dark); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 12px; }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+    th {
+      background: #f3f4f6;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #fafafa; }
+    .tag-in { font-weight: 700; color: var(--green-dark); }
+    .tag-out { font-weight: 700; color: #b45309; }
+    .err {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      font-size: 13px;
+    }
+    .muted { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+    #qrHost {
+      display: inline-block;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--card);
+    }
+    #qrHost svg { display: block; max-width: 100%; height: auto; }
+    #qrMeta { margin-top: 10px; font-size: 12px; color: var(--muted); max-width: 280px; }
+    .hidden { display: none !important; }
+    .login-wrap { max-width: 440px; margin: 32px auto; }
+    .login-wrap .panel .bd p.lede {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+    .foot {
+      margin-top: 28px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .foot a { color: var(--green-dark); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header class="topbar hidden" id="bar">
+    <div class="left">
+      <div class="crest">IR</div>
+      <div>
+        <h1 id="barTitle">Gym desk</h1>
+        <p class="sub" id="barSub">Staff</p>
+      </div>
+    </div>
+    <div class="actions">
+      <a class="link" href="/teacher/kiosk">QR only (display)</a>
+      <a class="link" href="/teacher/setup">New school</a>
+      <button type="button" class="ghost" id="btnLogout2">Sign out</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="login-wrap" id="loginSection">
+      <div class="panel">
+        <div class="hd">
+          <h2>Sign in<span class="star">★</span></h2>
+        </div>
+        <div class="bd">
+          <p class="lede">Use your staff login. If your username exists in more than one school, enter the school ID you were given.</p>
+          <div>
+            <label for="u">Username</label>
+            <input id="u" type="text" autocomplete="username">
+          </div>
+          <div style="margin-top:12px">
+            <label for="p">Password</label>
+            <input id="p" type="password" autocomplete="current-password">
+          </div>
+          <div style="margin-top:12px">
+            <label for="sid">School ID <span style="font-weight:400;text-transform:none;color:#9ca3af">(if required)</span></label>
+            <input id="sid" type="number" min="1" step="1" placeholder="e.g. 2">
+          </div>
+          <div style="margin-top:16px">
+            <button type="button" class="primary" id="btnLogin">Sign in</button>
+          </div>
+          <p class="muted" style="margin-top:14px">Need a new school? <a href="/teacher/setup" style="color:var(--green-dark);font-weight:600">Create school</a></p>
+          <div id="loginErr" class="err hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="deskWrap" class="hidden">
+      <div class="grid">
+        <div class="panel">
+          <div class="hd">
+            <h2>Attendance<span class="star">★</span></h2>
+            <button type="button" class="ghost" id="btnRefresh" style="padding:6px 12px;font-size:12px">Refresh</button>
+          </div>
+          <div class="bd">
+            <div class="toolbar">
+              <div>
+                <label for="day">Date</label>
+                <input type="date" id="day">
+              </div>
+            </div>
+            <div id="logErr" class="err hidden"></div>
+            <div style="overflow-x:auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Login</th>
+                    <th>Name</th>
+                    <th>Event</th>
+                  </tr>
+                </thead>
+                <tbody id="logBody"></tbody>
+              </table>
+            </div>
+            <p class="muted">List is for the current school only. Export is not available in this version.</p>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="hd">
+            <h2>Door QR<span class="star">★</span></h2>
+          </div>
+          <div class="bd">
+            <p class="muted" style="margin-top:0">Students scan this at the desk. The image is generated by the server. For a <strong>second monitor</strong> showing only the code (staff login required), open <a href="/teacher/kiosk" style="color:var(--green-dark);font-weight:600">/teacher/kiosk</a>.</p>
+            <div id="qrHost"></div>
+            <div id="qrMeta"></div>
+            <div id="qrErr" class="err hidden"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="foot">Internal · <a href="/docs">API docs</a> · Open <code id="here"></code></p>
+  </main>
+
+  <script>
+    (function () {
+      var TOKEN_KEY = 'gym_teacher_jwt';
+      var SCHOOL_ID_KEY = 'gym_school_id';
+      var SCHOOL_NAME_KEY = 'gym_school_name';
+      var qrTimer = null;
+
+      document.getElementById('here').textContent = window.location.origin + '/teacher';
+
+      function show(el, on) { el.classList.toggle('hidden', !on); }
+
+      function getToken() { return sessionStorage.getItem(TOKEN_KEY); }
+      function setToken(t) {
+        if (t) sessionStorage.setItem(TOKEN_KEY, t);
+        else sessionStorage.removeItem(TOKEN_KEY);
+      }
+
+      function authHeaders() {
+        var t = getToken();
+        return t ? { 'Authorization': 'Bearer ' + t } : {};
+      }
+
+      async function api(path, opts) {
+        opts = opts || {};
+        var headers = Object.assign({}, authHeaders(), opts.headers || {});
+        if (opts.body != null) {
+          headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+        }
+        var r = await fetch(path, Object.assign({}, opts, { headers: headers }));
+        var text = await r.text();
+        var data = null;
+        try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+        if (!r.ok) {
+          var msg = (data && data.detail) ? data.detail : (typeof data === 'string' ? data : r.statusText);
+          var err = new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+          err.status = r.status;
+          throw err;
+        }
+        return data;
+      }
+
+      function todayISO() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+
+      function escapeHtml(s) {
+        if (s == null) return '';
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function renderLog(rows) {
+        var tb = document.getElementById('logBody');
+        tb.innerHTML = '';
+        if (!rows || !rows.length) {
+          var tr = document.createElement('tr');
+          var td = document.createElement('td');
+          td.colSpan = 4;
+          td.textContent = 'No events for this date.';
+          tr.appendChild(td);
+          tb.appendChild(tr);
+          return;
+        }
+        rows.forEach(function (row) {
+          var tr = document.createElement('tr');
+          var t = row.timestamp;
+          if (typeof t === 'string' && t.length > 19) t = t.slice(0, 19);
+          tr.innerHTML =
+            '<td>' + escapeHtml(t) + '</td>' +
+            '<td>' + escapeHtml(row.username) + '</td>' +
+            '<td>' + escapeHtml(row.full_name || '—') + '</td>' +
+            '<td class="' + (row.event_type === 'in' ? 'tag-in' : 'tag-out') + '">' +
+            escapeHtml(String(row.event_type).toUpperCase()) + '</td>';
+          tb.appendChild(tr);
+        });
+      }
+
+      function drawQr(svgMarkup, expiresAt) {
+        var host = document.getElementById('qrHost');
+        host.innerHTML = '';
+        if (!svgMarkup || !String(svgMarkup).trim()) {
+          document.getElementById('qrMeta').textContent = 'QR image missing from server. Run pip install -r requirements.txt and restart uvicorn.';
+          return;
+        }
+        host.innerHTML = svgMarkup;
+        var exp = expiresAt;
+        if (typeof exp === 'string' && exp.length > 19) exp = exp.slice(0, 19);
+        document.getElementById('qrMeta').textContent = 'Short-lived code. Refreshes automatically. Next window (UTC): ' + (exp || '—');
+      }
+
+      async function loadAttendance() {
+        var err = document.getElementById('logErr');
+        err.classList.add('hidden');
+        err.textContent = '';
+        var day = document.getElementById('day').value || todayISO();
+        try {
+          var rows = await api('/admin/attendance?date=' + encodeURIComponent(day), { method: 'GET' });
+          renderLog(rows);
+        } catch (e) {
+          if (e.status === 401) { showLogin(); return; }
+          err.textContent = String(e.message || e);
+          err.classList.remove('hidden');
+        }
+      }
+
+      async function pollQr() {
+        var err = document.getElementById('qrErr');
+        err.classList.add('hidden');
+        try {
+          var data = await api('/qr/current', { method: 'GET' });
+          drawQr(data.qr_svg, data.expires_at);
+        } catch (e) {
+          if (e.status === 401) { stopQrLoop(); showLogin(); return; }
+          err.textContent = String(e.message || e);
+          err.classList.remove('hidden');
+        }
+      }
+
+      function stopQrLoop() {
+        if (qrTimer) clearInterval(qrTimer);
+        qrTimer = null;
+      }
+
+      function startQrLoop() {
+        stopQrLoop();
+        pollQr();
+        qrTimer = setInterval(pollQr, 12000);
+      }
+
+      function showDesk(data) {
+        show(document.getElementById('loginSection'), false);
+        show(document.getElementById('bar'), true);
+        show(document.getElementById('deskWrap'), true);
+        var name = sessionStorage.getItem(SCHOOL_NAME_KEY) || 'School';
+        document.getElementById('barTitle').textContent = name;
+        document.getElementById('barSub').textContent = 'School ID ' + (sessionStorage.getItem(SCHOOL_ID_KEY) || '—');
+        document.getElementById('day').value = todayISO();
+        loadAttendance();
+        startQrLoop();
+      }
+
+      function showLogin() {
+        stopQrLoop();
+        setToken(null);
+        show(document.getElementById('bar'), false);
+        show(document.getElementById('deskWrap'), false);
+        show(document.getElementById('loginSection'), true);
+        var sid = sessionStorage.getItem(SCHOOL_ID_KEY);
+        if (sid) document.getElementById('sid').value = sid;
+      }
+
+      document.getElementById('btnLogin').onclick = async function () {
+        var err = document.getElementById('loginErr');
+        err.classList.add('hidden');
+        var u = document.getElementById('u').value.trim();
+        var p = document.getElementById('p').value;
+        var sidRaw = document.getElementById('sid').value.trim();
+        if (!u || !p) {
+          err.textContent = 'Enter username and password.';
+          err.classList.remove('hidden');
+          return;
+        }
+        var body = { username: u, password: p };
+        if (sidRaw) body.school_id = parseInt(sidRaw, 10);
+        try {
+          var data = await api('/auth/login', { method: 'POST', body: JSON.stringify(body) });
+          if (data.role !== 'admin') {
+            throw new Error('This page is for admin accounts only.');
+          }
+          setToken(data.access_token);
+          sessionStorage.setItem(SCHOOL_ID_KEY, String(data.school_id));
+          sessionStorage.setItem(SCHOOL_NAME_KEY, data.school_name);
+          document.getElementById('p').value = '';
+          showDesk(data);
+        } catch (e) {
+          err.textContent = String(e.message || e);
+          err.classList.remove('hidden');
+        }
+      };
+
+      function logout() {
+        sessionStorage.removeItem(SCHOOL_NAME_KEY);
+        showLogin();
+      }
+
+      document.getElementById('btnLogout2').onclick = logout;
+      document.getElementById('btnRefresh').onclick = function () { loadAttendance(); };
+      document.getElementById('day').onchange = function () { loadAttendance(); };
+
+      window.addEventListener('DOMContentLoaded', function () {
+        var sid = sessionStorage.getItem(SCHOOL_ID_KEY);
+        if (sid) document.getElementById('sid').value = sid;
+        if (getToken()) {
+          showDesk();
+        } else {
+          showLogin();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'screens/admin/admin_home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/student/scan_screen.dart';
+import 'app_theme.dart';
 import 'state/auth_state.dart';
 
 void main() async {
@@ -65,10 +66,7 @@ class GymApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Gym check-in',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light(),
       routerConfig: router,
     );
   }

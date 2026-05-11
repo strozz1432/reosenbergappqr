@@ -3,6 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -17,9 +18,11 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 @router.get("/users", response_model=list[UserOut])
 def list_users(
     db: Annotated[Session, Depends(get_db)],
-    _admin: Annotated[User, Depends(require_admin)],
+    admin: Annotated[User, Depends(require_admin)],
 ) -> list[UserOut]:
-    users = db.scalars(select(User).order_by(User.username)).all()
+    users = db.scalars(
+        select(User).where(User.school_id == admin.school_id).order_by(User.username)
+    ).all()
     return [UserOut.model_validate(u) for u in users]
 
 
@@ -27,19 +30,24 @@ def list_users(
 def create_user(
     body: UserCreate,
     db: Annotated[Session, Depends(get_db)],
-    _admin: Annotated[User, Depends(require_admin)],
+    admin: Annotated[User, Depends(require_admin)],
 ) -> UserOut:
-    exists = db.scalar(select(User).where(User.username == body.username))
-    if exists:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username already exists")
     u = User(
+        school_id=admin.school_id,
         username=body.username,
         password_hash=hash_password(body.password),
         role=body.role,
         full_name=body.full_name,
     )
     db.add(u)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username already exists in this school",
+        )
     db.refresh(u)
     return UserOut.model_validate(u)
 
@@ -47,7 +55,7 @@ def create_user(
 @router.get("/attendance", response_model=list[AttendanceRow])
 def list_attendance(
     db: Annotated[Session, Depends(get_db)],
-    _admin: Annotated[User, Depends(require_admin)],
+    admin: Annotated[User, Depends(require_admin)],
     date: Annotated[str | None, Query(description="YYYY-MM-DD, defaults to today UTC")] = None,
 ) -> list[AttendanceRow]:
     if date:
@@ -64,7 +72,11 @@ def list_attendance(
     q = (
         select(AttendanceEvent, User)
         .join(User, AttendanceEvent.user_id == User.id)
-        .where(AttendanceEvent.timestamp >= start, AttendanceEvent.timestamp < end)
+        .where(
+            User.school_id == admin.school_id,
+            AttendanceEvent.timestamp >= start,
+            AttendanceEvent.timestamp < end,
+        )
         .order_by(AttendanceEvent.timestamp.desc())
     )
     rows = db.execute(q).all()

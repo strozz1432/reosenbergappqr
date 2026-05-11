@@ -14,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _userCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
+  final _schoolIdCtrl = TextEditingController();
   final _apiCtrl = TextEditingController();
   bool _busy = false;
   String? _error;
@@ -31,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _userCtrl.dispose();
     _passCtrl.dispose();
+    _schoolIdCtrl.dispose();
     _apiCtrl.dispose();
     super.dispose();
   }
@@ -43,7 +45,13 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = context.read<AuthState>();
     try {
       await auth.setApiBaseUrl(_apiCtrl.text);
-      await auth.login(_userCtrl.text.trim(), _passCtrl.text);
+      final sidRaw = _schoolIdCtrl.text.trim();
+      final schoolId = sidRaw.isEmpty ? null : int.tryParse(sidRaw);
+      await auth.login(
+        _userCtrl.text.trim(),
+        _passCtrl.text,
+        schoolId: schoolId,
+      );
     } on DioException catch (e) {
       final msg = e.response?.data;
       if (msg is Map && msg['detail'] != null) {
@@ -109,6 +117,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     border: OutlineInputBorder(),
                   ),
                   obscureText: true,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _schoolIdCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'School ID (only if required)',
+                    border: OutlineInputBorder(),
+                    hintText: 'Leave empty for demo school',
+                  ),
+                  keyboardType: TextInputType.number,
                   onSubmitted: (_) {
                     if (!_busy) _submit();
                   },

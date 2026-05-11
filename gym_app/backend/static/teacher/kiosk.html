@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Door QR — staff</title>
+  <style>
+    :root {
+      --green: #39b54a;
+      --green-dark: #2a8f38;
+      --ink: #111827;
+      --muted: #6b7280;
+      --line: #e3e5e8;
+      --bg: #fafafa;
+      --card: #ffffff;
+      --radius: 10px;
+      --input-shadow: 0 1px 2px rgba(17, 24, 39, 0.05);
+      --input-shadow-focus: 0 1px 3px rgba(17, 24, 39, 0.07), 0 0 0 3px rgba(57, 181, 74, 0.14);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    /* —— Login gate —— */
+    #gate {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+    }
+    .login-card h1 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .login-card .lede {
+      margin: 0 0 20px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin: 14px 0 6px;
+    }
+    label:first-of-type { margin-top: 0; }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 15px;
+      background: #fafafa;
+      box-shadow: var(--input-shadow);
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--green);
+      background: var(--card);
+      box-shadow: var(--input-shadow-focus);
+    }
+    button.primary {
+      width: 100%;
+      margin-top: 20px;
+      border: 1px solid #2a7a36;
+      background: var(--green);
+      color: #fff;
+      font-weight: 600;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button.primary:hover { background: var(--green-dark); }
+    .err {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      font-size: 13px;
+    }
+    .hidden { display: none !important; }
+    .foot-login {
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .foot-login a { color: var(--green-dark); font-weight: 600; }
+    /* —— QR stage (after login) —— */
+    #stage {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    #stageBar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 16px;
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+    }
+    #stageBar .meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    #stageBar .meta strong { color: var(--ink); }
+    #stageBar button.ghost {
+      border: 1px solid var(--line);
+      background: var(--card);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    #stageBar a { font-size: 12px; color: var(--green-dark); font-weight: 600; text-decoration: none; }
+    #stageMain {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    #qrHost {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    #qrHost svg { display: block; max-width: min(72vw, 420px); height: auto; }
+    #qrMeta {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      max-width: 360px;
+    }
+    #qrErr {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      font-size: 13px;
+      max-width: 360px;
+    }
+  </style>
+</head>
+<body>
+  <div id="gate">
+    <div class="login-card">
+      <h1>Door QR display</h1>
+      <p class="lede">Staff or master admin only. Students must not use this screen. Sign in with the same account as the main desk.</p>
+      <form id="loginForm" novalidate>
+        <label for="u">Username</label>
+        <input id="u" type="text" autocomplete="username" required>
+        <label for="p">Password</label>
+        <input id="p" type="password" autocomplete="current-password" required>
+        <label for="sid">School ID <span style="font-weight:400;text-transform:none;color:#9ca3af">(if required)</span></label>
+        <input id="sid" type="number" min="1" step="1" placeholder="Optional">
+        <div id="loginErr" class="err hidden"></div>
+        <button type="submit" class="primary" id="btnGo">Sign in to show QR</button>
+      </form>
+      <p class="foot-login"><a href="/teacher">Full staff desk</a> · <a href="/teacher/setup">New school</a></p>
+    </div>
+  </div>
+
+  <div id="stage" class="hidden">
+    <div id="stageBar">
+      <div class="meta"><strong id="schoolLine">School</strong> — door code for students to scan</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <a href="/teacher">Desk</a>
+        <button type="button" class="ghost" id="btnOut">Sign out</button>
+      </div>
+    </div>
+    <div id="stageMain">
+      <div id="qrHost"></div>
+      <div id="qrMeta"></div>
+      <div id="qrErr" class="hidden"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var TOKEN_KEY = 'gym_teacher_jwt';
+      var SCHOOL_ID_KEY = 'gym_school_id';
+      var SCHOOL_NAME_KEY = 'gym_school_name';
+      var qrTimer = null;
+
+      function showGate(on) {
+        document.getElementById('gate').classList.toggle('hidden', !on);
+        document.getElementById('stage').classList.toggle('hidden', on);
+      }
+
+      function getToken() { return sessionStorage.getItem(TOKEN_KEY); }
+      function setToken(t) {
+        if (t) sessionStorage.setItem(TOKEN_KEY, t);
+        else sessionStorage.removeItem(TOKEN_KEY);
+      }
+
+      function authHeaders() {
+        var t = getToken();
+        return t ? { 'Authorization': 'Bearer ' + t } : {};
+      }
+
+      async function api(path, opts) {
+        opts = opts || {};
+        var headers = Object.assign({}, authHeaders(), opts.headers || {});
+        if (opts.body != null) {
+          headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+        }
+        var r = await fetch(path, Object.assign({}, opts, { headers: headers }));
+        var text = await r.text();
+        var data = null;
+        try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+        if (!r.ok) {
+          var msg = (data && data.detail) ? data.detail : (typeof data === 'string' ? data : r.statusText);
+          var err = new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+          err.status = r.status;
+          throw err;
+        }
+        return data;
+      }
+
+      function drawQr(svgMarkup, expiresAt) {
+        var host = document.getElementById('qrHost');
+        host.innerHTML = '';
+        var errEl = document.getElementById('qrErr');
+        errEl.classList.add('hidden');
+        if (!svgMarkup || !String(svgMarkup).trim()) {
+          document.getElementById('qrMeta').textContent = '';
+          errEl.textContent = 'QR not returned by server. Install segno and restart the API.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        host.innerHTML = svgMarkup;
+        var exp = expiresAt;
+        if (typeof exp === 'string' && exp.length > 19) exp = exp.slice(0, 19);
+        document.getElementById('qrMeta').textContent = 'Rotating code. Next window (UTC): ' + (exp || '—');
+      }
+
+      async function pollQr() {
+        var errEl = document.getElementById('qrErr');
+        errEl.classList.add('hidden');
+        try {
+          var data = await api('/qr/current', { method: 'GET' });
+          drawQr(data.qr_svg, data.expires_at);
+        } catch (e) {
+          if (e.status === 401) {
+            stopQr();
+            logout();
+            return;
+          }
+          errEl.textContent = String(e.message || e);
+          errEl.classList.remove('hidden');
+        }
+      }
+
+      function stopQr() {
+        if (qrTimer) clearInterval(qrTimer);
+        qrTimer = null;
+      }
+
+      function startQr() {
+        stopQr();
+        pollQr();
+        qrTimer = setInterval(pollQr, 12000);
+      }
+
+      function logout() {
+        stopQr();
+        setToken(null);
+        sessionStorage.removeItem(SCHOOL_NAME_KEY);
+        showGate(true);
+        var sid = sessionStorage.getItem(SCHOOL_ID_KEY);
+        if (sid) document.getElementById('sid').value = sid;
+      }
+
+      function enterStage(data) {
+        sessionStorage.setItem(SCHOOL_ID_KEY, String(data.school_id));
+        sessionStorage.setItem(SCHOOL_NAME_KEY, data.school_name);
+        document.getElementById('schoolLine').textContent = data.school_name + ' (ID ' + data.school_id + ')';
+        showGate(false);
+        startQr();
+      }
+
+      async function tryResume() {
+        var t = getToken();
+        if (!t) {
+          var sid = sessionStorage.getItem(SCHOOL_ID_KEY);
+          if (sid) document.getElementById('sid').value = sid;
+          return;
+        }
+        try {
+          await api('/qr/current', { method: 'GET' });
+          var name = sessionStorage.getItem(SCHOOL_NAME_KEY) || 'School';
+          var sid = sessionStorage.getItem(SCHOOL_ID_KEY) || '—';
+          enterStage({ school_name: name, school_id: sid });
+        } catch (e) {
+          setToken(null);
+        }
+      }
+
+      document.getElementById('loginForm').onsubmit = async function (ev) {
+        ev.preventDefault();
+        var err = document.getElementById('loginErr');
+        err.classList.add('hidden');
+        var u = document.getElementById('u').value.trim();
+        var p = document.getElementById('p').value;
+        var sidRaw = document.getElementById('sid').value.trim();
+        if (!u || !p) {
+          err.textContent = 'Enter username and password.';
+          err.classList.remove('hidden');
+          return;
+        }
+        var body = { username: u, password: p };
+        if (sidRaw) body.school_id = parseInt(sidRaw, 10);
+        try {
+          var data = await api('/auth/login', { method: 'POST', body: JSON.stringify(body) });
+          if (data.role !== 'admin') {
+            throw new Error('Only admin / master accounts can open the QR display.');
+          }
+          setToken(data.access_token);
+          document.getElementById('p').value = '';
+          enterStage(data);
+        } catch (e) {
+          err.textContent = String(e.message || e);
+          err.classList.remove('hidden');
+        }
+      };
+
+      document.getElementById('btnOut').onclick = logout;
+
+      window.addEventListener('DOMContentLoaded', function () {
+        var sid = sessionStorage.getItem(SCHOOL_ID_KEY);
+        if (sid) document.getElementById('sid').value = sid;
+        if (getToken()) tryResume();
+      });
+    })();
+  </script>
+</body>
+</html>

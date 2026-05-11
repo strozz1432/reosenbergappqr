@@ -36,11 +36,16 @@ class AuthState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> login(String username, String password) async {
+  Future<void> login(String username, String password, {int? schoolId}) async {
     final dio = ApiClient.anonymous(apiBaseUrl).dio;
+    final payload = <String, dynamic>{
+      'username': username,
+      'password': password,
+    };
+    if (schoolId != null) payload['school_id'] = schoolId;
     final response = await dio.post<Map<String, dynamic>>(
       '/auth/login',
-      data: {'username': username, 'password': password},
+      data: payload,
     );
     final data = response.data!;
     token = data['access_token'] as String?;

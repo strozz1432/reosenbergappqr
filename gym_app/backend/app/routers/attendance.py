@@ -1,12 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import require_student
-from app.models import AttendanceEvent, User
+from app.models import AttendanceEvent, School, User
+from app.network_policy import require_scan_from_allowed_network
 from app.qr_token import verify_token
 from app.schemas import ScanRequest, ScanResponse
 
@@ -15,11 +16,20 @@ router = APIRouter(prefix="/attendance", tags=["attendance"])
 
 @router.post("/scan", response_model=ScanResponse)
 def scan(
+    request: Request,
     body: ScanRequest,
     db: Annotated[Session, Depends(get_db)],
     user: Annotated[User, Depends(require_student)],
 ) -> ScanResponse:
-    if not verify_token(body.qr_token.strip()):
+    require_scan_from_allowed_network(request)
+    school = db.get(School, user.school_id)
+    if school is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="School not found")
+    if not verify_token(
+        body.qr_token.strip(),
+        gym_id=str(school.id),
+        qr_secret=school.qr_secret,
+    ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired QR token",

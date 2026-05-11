@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New school — gym check-in</title>
+  <style>
+    :root {
+      --green: #39b54a;
+      --green-dark: #2a8f38;
+      --green-soft: #e8f7ea;
+      --ink: #1a1a1a;
+      --muted: #6b7280;
+      --line: #e3e5e8;
+      --bg: #f4f5f7;
+      --card: #ffffff;
+      --radius: 10px;
+      --input-shadow: 0 1px 2px rgba(17, 24, 39, 0.05);
+      --input-shadow-focus: 0 1px 3px rgba(17, 24, 39, 0.07), 0 0 0 3px rgba(57, 181, 74, 0.14);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+    .shell { max-width: 520px; margin: 0 auto; padding: 28px 18px 48px; }
+    .brand {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 22px;
+    }
+    .crest {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: var(--green-soft); border: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: var(--green-dark); font-size: 14px;
+    }
+    .brand h1 {
+      margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.02em;
+    }
+    .brand p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      padding: 22px 20px 20px;
+    }
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .card .lede {
+      margin: 0 0 18px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 14px 0 6px;
+    }
+    label:first-of-type { margin-top: 0; }
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 15px;
+      background: #fafafa;
+      box-shadow: var(--input-shadow);
+      transition: border-color .15s, background .15s, box-shadow .15s;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--green);
+      background: var(--card);
+      box-shadow: var(--input-shadow-focus);
+    }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 5px;
+      line-height: 1.35;
+    }
+    .actions {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    button.primary {
+      border: 1px solid #2a7a36;
+      background: var(--green);
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button.primary:hover { background: var(--green-dark); border-color: var(--green-dark); }
+    button.primary:disabled { opacity: .55; cursor: not-allowed; }
+    a.back {
+      font-size: 13px;
+      color: var(--green-dark);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    a.back:hover { text-decoration: underline; }
+    .err {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      font-size: 13px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="brand">
+      <div class="crest">IR</div>
+      <div>
+        <h1>Gym check-in</h1>
+        <p>Register a new school</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>School setup</h2>
+      <p class="lede">Creates a separate gym space with its own QR code and attendance list. The master login is the first administrator.</p>
+
+      <form id="f" novalidate>
+        <label for="school">School name</label>
+        <input id="school" name="school" type="text" required autocomplete="organization" placeholder="e.g. Institut auf dem Rosenberg">
+
+        <label for="director">Director / lead name <span style="font-weight:400;text-transform:none;color:#9ca3af">(optional)</span></label>
+        <input id="director" name="director" type="text" autocomplete="name" placeholder="Shown on staff lists">
+
+        <label for="user">Master username</label>
+        <input id="user" name="user" type="text" required autocomplete="username" placeholder="Letters and numbers, no spaces">
+        <p class="hint">If someone else already chose this username in another school, the system will ask for a school ID when signing in.</p>
+
+        <label for="pass">Master password</label>
+        <input id="pass" name="pass" type="password" required autocomplete="new-password" minlength="12" placeholder="Strong password">
+        <p class="hint">At least 12 characters, with upper and lower case, a number, and a symbol.</p>
+
+        <label for="pass2">Confirm password</label>
+        <input id="pass2" name="pass2" type="password" required autocomplete="new-password" placeholder="Repeat password">
+
+        <div id="err" class="err hidden"></div>
+
+        <div class="actions">
+          <button type="submit" class="primary" id="go">Create school</button>
+          <a class="back" href="/teacher">Back to sign in</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var TOKEN_KEY = 'gym_teacher_jwt';
+      var SCHOOL_KEY = 'gym_school_id';
+
+      function showErr(msg) {
+        var el = document.getElementById('err');
+        el.textContent = msg;
+        el.classList.remove('hidden');
+      }
+      function hideErr() {
+        var el = document.getElementById('err');
+        el.classList.add('hidden');
+        el.textContent = '';
+      }
+
+      document.getElementById('f').onsubmit = async function (ev) {
+        ev.preventDefault();
+        hideErr();
+        var school = document.getElementById('school').value.trim();
+        var director = document.getElementById('director').value.trim();
+        var user = document.getElementById('user').value.trim();
+        var pass = document.getElementById('pass').value;
+        var pass2 = document.getElementById('pass2').value;
+        if (pass !== pass2) {
+          showErr('Passwords do not match.');
+          return;
+        }
+        var btn = document.getElementById('go');
+        btn.disabled = true;
+        try {
+          var r = await fetch('/schools/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              school_name: school,
+              master_username: user,
+              master_password: pass,
+              master_display_name: director || null
+            })
+          });
+          var text = await r.text();
+          var data = null;
+          try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+          if (!r.ok) {
+            var msg = '';
+            if (data && data.detail) {
+              if (Array.isArray(data.detail)) {
+                msg = data.detail.map(function (d) {
+                  return (d.loc ? d.loc.join('.') + ': ' : '') + (d.msg || d.type || '');
+                }).join('\n');
+              } else {
+                msg = String(data.detail);
+              }
+            } else {
+              msg = text || ('HTTP ' + r.status);
+            }
+            showErr(msg);
+            btn.disabled = false;
+            return;
+          }
+          sessionStorage.setItem(TOKEN_KEY, data.access_token);
+          sessionStorage.setItem(SCHOOL_KEY, String(data.school_id));
+          window.location.href = '/teacher';
+        } catch (e) {
+          showErr(String(e.message || e));
+          btn.disabled = false;
+        }
+      };
+    })();
+  </script>
+</body>
+</html>
